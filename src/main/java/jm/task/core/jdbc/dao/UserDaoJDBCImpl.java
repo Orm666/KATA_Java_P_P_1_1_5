@@ -6,25 +6,26 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
+    private final Connection connection = Util.getConnection();
     public UserDaoJDBCImpl() {
     }
     public void createUsersTable() {
         String sql = "CREATE TABLE IF NOT EXISTS users (id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20), last_name VARCHAR(20), age TINYINT)";
-        try (Statement statement = Util.getConnection().createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (SQLException ignored) {
         }
     }
     public void dropUsersTable() {
         String sql = "DROP TABLE IF EXISTS users";
-        try (Statement statement = Util.getConnection().createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (SQLException ignored) {
         }
     }
     public void saveUser(String name, String lastName, byte age) {
         String sql = "INSERT INTO users (name, last_name, age) VALUES (?, ?, ?)";
-        try (PreparedStatement preparedstatement = Util.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement preparedstatement = connection.prepareStatement(sql)) {
             preparedstatement.setString(1 ,name);
             preparedstatement.setString(2, lastName);
             preparedstatement.setInt(3, age);
@@ -35,7 +36,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
     public void removeUserById(long id) {
         String sql = "DELETE FROM users WHERE id = ? LIMIT 1";
-        try (PreparedStatement preparedstatement = Util.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement preparedstatement = connection.prepareStatement(sql)) {
             preparedstatement.setLong(1 , id);
             preparedstatement.executeUpdate();
         } catch (SQLException ignored) {
@@ -45,7 +46,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public List<User> getAllUsers() {
         List<User> userList = new LinkedList<>();
         String sql = "SELECT * FROM users";
-        try (Statement statement = Util.getConnection().createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
                 User user = new User();
@@ -61,7 +62,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
     public void cleanUsersTable() {
         String sql = "TRUNCATE TABLE users";
-        try (Statement statement = Util.getConnection().createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (SQLException ignored) {
         }
